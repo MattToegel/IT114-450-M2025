@@ -21,6 +21,13 @@ public class Problem3 extends BaseClass {
         Object[] output = new Object[arr.length];
         // Start Solution Edits
 
+        // mt85 06-01-2025
+        // step 1: iterate the arr by ...
+        // step 2: use ... to check type
+        // step 3: use ... to make positive
+        // step 4: use ... to convert back to original type
+        // step 5: use ... to assign back to the same slot of the output array
+
         // End Solution Edits
         System.out.println("Output: ");
         printOutputWithType(output);
