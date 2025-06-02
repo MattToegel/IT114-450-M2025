@@ -48,6 +48,9 @@ public class Problem4 extends BaseClass {
             // word/phrase
             // step 8: assigning to placeholderForMiddleCharacters
 
+            placeholderForModifiedPhrase = arr[i];
+            placeholderForMiddleCharacters = arr[i];
+
             // End Solution Edits
             System.out.println(String.format("Index[%d] \"%s\" | Middle: \"%s\"", i, placeholderForModifiedPhrase,
                     placeholderForMiddleCharacters));
