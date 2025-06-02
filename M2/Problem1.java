@@ -17,6 +17,12 @@ public class Problem1 extends BaseClass {
         System.out.print("Output Array: ");
         // Start Solution Edits
 
+        // mt85 06-01-2025
+
+        // step 1: iterate through the arr by using ...
+        // step 2: using ... to determine if odd
+        // step 3: using ... to output the odd value ensuring it's a single line of text
+
         // End Solution Edits
         System.out.println("");
         System.out.println("______________________________________");
