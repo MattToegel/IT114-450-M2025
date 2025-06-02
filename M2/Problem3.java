@@ -28,6 +28,8 @@ public class Problem3 extends BaseClass {
         // step 4: use ... to convert back to original type
         // step 5: use ... to assign back to the same slot of the output array
 
+        System.out.println("Fake output");
+
         // End Solution Edits
         System.out.println("Output: ");
         printOutputWithType(output);
