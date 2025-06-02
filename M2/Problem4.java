@@ -18,8 +18,10 @@ public class Problem4 extends BaseClass {
         // Challenge 2: Convert text to Title Case
         // Challenge 3: Trim leading/trailing spaces and remove duplicate spaces
         // Result 1-3: Assign final phrase to `placeholderForModifiedPhrase`
-        // Challenge 4 (extra credit): Extract middle 3 characters (beginning starts at
-        // middle of phrase),
+        // Challenge 4 (extra credit): Extract up to the middle 3 characters (beginning
+        // starts at middle of phrase),
+        // Note: The middle 3 character should not contain the first and last character
+        // (e.g., over would as ve)
         // assign to 'placeholderForMiddleCharacters'
         // if not enough characters assign "Not enough characters"
 
@@ -31,6 +33,20 @@ public class Problem4 extends BaseClass {
 
         for (int i = 0; i < arr.length; i++) {
             // Start Solution Edits
+
+            // mt85 06-01-2025
+            // step 1: using ... to remove non-alphanumeric characters, using ... to
+            // preserve spaces
+            // step 2: using ... to make text title case
+            // step 3: using ... to remove spaces at beginning and end, using ... to remove
+            // duplicate spaces
+            // step 4: assigning result to placeholderForModifiedPhrase
+
+            // step 5: using ... to determine middle
+            // step 6: using ... to get up to the middle 3 characters
+            // step 7: using ... to ensure the middle characters exclude first and last of
+            // word/phrase
+            // step 8: assigning to placeholderForMiddleCharacters
 
             // End Solution Edits
             System.out.println(String.format("Index[%d] \"%s\" | Middle: \"%s\"", i, placeholderForModifiedPhrase,
