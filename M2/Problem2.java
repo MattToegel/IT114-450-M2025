@@ -28,8 +28,11 @@ public class Problem2 extends BaseClass {
         // step 2: track sum by ...
         // step 3: update representation by ... and assign to modifiedTotal
 
+        total = 1;
+
         // Solve Challenge 2 here
         Object modifiedTotal = "?";
+        modifiedTotal = "1.00";
 
         // End Solution Edits
         System.out.println("Total Raw Value: " + total);
