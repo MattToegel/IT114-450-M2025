@@ -23,6 +23,11 @@ public class Problem2 extends BaseClass {
         // Start Solution Edits
         // Solve Challenge 1 here
 
+        // mt85 06-01-2025
+        // step 1: iterate through the array by ...
+        // step 2: track sum by ...
+        // step 3: update representation by ... and assign to modifiedTotal
+
         // Solve Challenge 2 here
         Object modifiedTotal = "?";
 
