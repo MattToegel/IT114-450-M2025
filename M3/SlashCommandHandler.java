@@ -29,7 +29,8 @@ public class SlashCommandHandler extends BaseClass {
         while (true) {
             System.out.print("Enter command: ");
             // get entered text
-
+            // mt85 06-08-2025 fake solution
+            System.out.println("Unhandled command");
             // check if greet
             //// process greet
 
