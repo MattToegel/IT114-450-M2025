@@ -35,6 +35,7 @@ public class CommandLineCalculator extends BaseClass {
             // longest decimal passed)
             // i.e., 0.1 + 0.2 would show as one decimal place (0.3), 0.11 + 0.2 would shows
             // as two (0.31), etc
+            System.out.println("The answer is pi");
 
         } catch (Exception e) {
             System.out.println("Invalid input. Please ensure correct format and valid numbers.");
