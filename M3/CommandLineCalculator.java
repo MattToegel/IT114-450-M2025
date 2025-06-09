@@ -25,6 +25,8 @@ public class CommandLineCalculator extends BaseClass {
 
         try {
             System.out.println("Calculating result...");
+            // mt85 06-08-2025 fake solution
+            System.out.println("The answer is pi");
             // extract the equation (format is <num1> <operator> <num2>)
 
             // check if operator is addition or subtraction
@@ -35,8 +37,6 @@ public class CommandLineCalculator extends BaseClass {
             // longest decimal passed)
             // i.e., 0.1 + 0.2 would show as one decimal place (0.3), 0.11 + 0.2 would shows
             // as two (0.31), etc
-            // mt85 06-08-2025
-            System.out.println("The answer is pi");
 
         } catch (Exception e) {
             System.out.println("Invalid input. Please ensure correct format and valid numbers.");

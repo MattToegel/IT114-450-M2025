@@ -29,8 +29,8 @@ public class SlashCommandHandler extends BaseClass {
         while (true) {
             System.out.print("Enter command: ");
             // get entered text
-            // mt85 06-08-2025
-            System.out.println("This is an example of unhandled anything");
+            // mt85 06-08-2025 fake solution
+            System.out.println("Unhandled command");
             // check if greet
             //// process greet
 
@@ -44,7 +44,7 @@ public class SlashCommandHandler extends BaseClass {
             // check if quit
             //// process quit
 
-            // handle invalid commands
+            // handle invalid commnads
 
             // delete this condition/block, it's just here so the sample runs without edits
             if (1 == 1) {
