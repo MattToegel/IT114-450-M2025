@@ -25,6 +25,8 @@ public class CommandLineCalculator extends BaseClass {
 
         try {
             System.out.println("Calculating result...");
+            // mt85 06-08-2025 fake solution
+            System.out.println("The answer is pi");
             // extract the equation (format is <num1> <operator> <num2>)
 
             // check if operator is addition or subtraction
