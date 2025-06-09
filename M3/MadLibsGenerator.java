@@ -35,7 +35,11 @@ public class MadLibsGenerator extends BaseClass {
         }
         List<String> lines = new ArrayList<>();
         // Start edits
-
+        // mt85 06-08-2025 not a real solution...
+        lines.add("Today, I went to the zoo and saw a <adjective> <animal>.");
+        lines.add("It was <verb_ending_in_ing> near the <place>.");
+        lines.add("The zookeeper said it loved eating <food> and sleeping under a <object>.");
+        lines.add("Before I left, I bought a <adjective> <souvenir> from the gift shop!");
         // load a random story file
 
         // parse the story lines
