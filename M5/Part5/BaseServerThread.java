@@ -9,7 +9,7 @@ import java.net.Socket;
  * Base class the handles the underlying connection between Client and
  * Server-side
  */
-public abstract class ServerThread extends Thread {
+public abstract class BaseServerThread extends Thread {
 
     protected boolean isRunning = false; // control variable to stop this thread
     protected ObjectOutputStream out; // exposed here for send()
