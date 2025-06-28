@@ -1,21 +1,69 @@
-package M5.Part5;
+package M5.Part4;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.function.Consumer;
+import M5.Part4.TextFX.Color;
 
 /**
- * Base class the handles the underlying connection between Client and
- * Server-side
+ * A server-side representation of a single client
  */
-public abstract class ServerThread extends Thread {
+public class ServerThread extends Thread {
+    private Socket client; // communication directly to "my" client
+    private boolean isRunning = false; // control variable to stop this thread
+    private ObjectOutputStream out; // exposed here for send()
 
-    protected boolean isRunning = false; // control variable to stop this thread
-    protected ObjectOutputStream out; // exposed here for send()
-    protected Socket client; // communication directly to "my" client
-    private User user = new User();
-    protected Room currentRoom;
+    private long clientId;
+    private Consumer<ServerThread> onInitializationComplete; // callback to inform when this object is ready
+    private Room currentRoom;
+
+    /**
+     * A wrapper method so we don't need to keep typing out the long/complex sysout
+     * line inside
+     * 
+     * @param message
+     */
+    private void info(String message) {
+        System.out.println(String.format("Thread[%s]: %s", this.getClientId(), message));
+    }
+
+    /**
+     * Returns the status of this ServerThread
+     * 
+     * @return
+     */
+    public boolean isRunning() {
+        return isRunning;
+    }
+
+    /**
+     * Wraps the Socket connection and takes a Server reference and a callback
+     * 
+     * @param myClient
+     * @param server
+     * @param onInitializationComplete method to inform listener that this object is
+     *                                 ready
+     */
+    protected ServerThread(Socket myClient, Consumer<ServerThread> onInitializationComplete) {
+        Objects.requireNonNull(myClient, "Client socket cannot be null");
+        Objects.requireNonNull(onInitializationComplete, "callback cannot be null");
+        info("ServerThread created");
+        // get communication channels to single client
+        this.client = myClient;
+        this.clientId = this.threadId(); // An id associated with the thread instance, used as a temporary identifier
+        this.onInitializationComplete = onInitializationComplete;
+
+    }
+
+    public long getClientId() {
+        // Note: We return clientId instead of threadId as we'll change this identifier
+        // in the future
+        return this.clientId;
+    }
 
     /**
      * Returns the current Room associated with this ServerThread
@@ -43,88 +91,7 @@ public abstract class ServerThread extends Thread {
     }
 
     /**
-     * Returns the status of this ServerThread
-     * 
-     * @return
-     */
-    public boolean isRunning() {
-        return isRunning;
-    }
-
-    public void setClientId(long clientId) {
-        this.user.setClientId(clientId);
-    }
-
-    public long getClientId() {
-        // Note: We return clientId instead of threadId as we'll change this identifier
-        // in the future
-        return this.user.getClientId();
-    }
-
-    /**
-     * Sets the client name and triggers onInitialized()
-     * 
-     * @param clientName
-     */
-    protected void setClientName(String clientName) {
-        this.user.setClientName(clientName);
-        onInitialized();
-    }
-
-    public String getClientName() {
-        return this.user.getClientName();
-    }
-
-    public String getDisplayName() {
-        return this.user.getDisplayName();
-    }
-
-    /**
-     * A wrapper method so we don't need to keep typing out the long/complex sysout
-     * line inside
-     * 
-     * @param message
-     */
-    protected abstract void info(String message);
-
-    /**
-     * Triggered when object is fully initialized
-     */
-    protected abstract void onInitialized();
-
-    /**
-     * Receives a Payload and passes data to proper handler
-     * 
-     * @param payload
-     */
-    protected abstract void processPayload(Payload payload);
-
-    /**
-     * Sends the payload over the socket
-     * 
-     * @param payload
-     * @return true if no errors were encountered
-     */
-    protected boolean sendToClient(Payload payload) {
-        if (!isRunning) {
-            return true;
-        }
-        try {
-            info("Sending to client: " + payload);
-            out.writeObject(payload);
-            out.flush();
-            return true;
-        } catch (IOException e) {
-            info("Error sending message to client (most likely disconnected)");
-            // comment this out to inspect the stack trace
-            // e.printStackTrace();
-            cleanup();
-            return false;
-        }
-    }
-
-    /**
-     * Terminates the server-side of the connection
+     * One of the two ways to get this to exit the listen loop
      */
     protected void disconnect() {
         if (!isRunning) {
@@ -137,6 +104,29 @@ public abstract class ServerThread extends Thread {
         cleanup(); // good practice to ensure data is written out immediately
     }
 
+    /**
+     * Sends the message over the socket
+     * 
+     * @param message
+     * @return true if no errors were encountered
+     */
+    protected boolean sendToClient(String message) {
+        if (!isRunning) {
+            return false;
+        }
+        try {
+            out.writeObject(message);
+            out.flush();
+            return true;
+        } catch (IOException e) {
+            info("Error sending message to client (most likely disconnected)");
+            // comment this out to inspect the stack trace
+            // e.printStackTrace();
+            cleanup();
+            return false;
+        }
+    }
+
     @Override
     public void run() {
         info("Thread starting");
@@ -144,16 +134,8 @@ public abstract class ServerThread extends Thread {
                 ObjectInputStream in = new ObjectInputStream(client.getInputStream());) {
             this.out = out;
             isRunning = true;
-            new java.util.Timer().schedule(new java.util.TimerTask() {
-                @Override
-                public void run() {
-                    if (getClientName() == null || getClientName().isBlank()) {
-                        info("Client name not received. Disconnecting");
-                        disconnect();
-                    }
-                }
-            }, 3000);
-            Payload fromClient;
+            onInitializationComplete.accept(this); // Notify server that initialization is complete
+            String fromClient;
             /**
              * isRunning is a flag to let us manage the loop exit condition
              * fromClient (in.readObject()) is a blocking method that waits until data is
@@ -163,12 +145,12 @@ public abstract class ServerThread extends Thread {
              */
             while (isRunning) {
                 try {
-                    fromClient = (Payload) in.readObject(); // blocking method
-                    if (fromClient != null) {
-                        info("Received from my client: " + fromClient);
-                        processPayload(fromClient);
-                    } else {
+                    fromClient = (String) in.readObject(); // blocking method
+                    if (fromClient == null) {
                         throw new IOException("Connection interrupted"); // Specific exception for a clean break
+                    } else {
+                        info(TextFX.colorize("Received from my client: " + fromClient, Color.CYAN));
+                        processPayload(fromClient);
                     }
                 } catch (ClassCastException | ClassNotFoundException cce) {
                     System.err.println("Error reading object as specified type: " + cce.getMessage());
@@ -189,31 +171,96 @@ public abstract class ServerThread extends Thread {
             e.printStackTrace();
             info("My Client disconnected");
         } finally {
-            if (currentRoom != null) {
-                currentRoom.handleDisconnect(this);
-            }
             isRunning = false;
             info("Exited thread loop. Cleaning up connection");
             cleanup();
         }
     }
 
+    private void processPayload(String incoming) {
+        Objects.requireNonNull(currentRoom, "Can't process a payload when the current room is null");
+        if (!processCommand(incoming)) {
+            // if not command; send message to all clients via Server
+            currentRoom.handleMessage(this, incoming);
+        }
+    }
+
     /**
-     * Cleanup method to close the connection and reset the user object
+     * Attempts to see if the message is a command and process its action
+     * 
+     * @param message
+     * @param sender
+     * @return true if it was a command, false otherwise
      */
-    protected void cleanup() {
+    private boolean processCommand(String message) {
+        Objects.requireNonNull(currentRoom, "Can't process a command when the current room is null");
+
+        boolean wasCommand = false; // control var to use as the return status
+
+        // using "[cmd]" as a temporary trigger until we update how the data is passed
+        // over the socket
+        if (message.startsWith(Constants.COMMAND_TRIGGER)) {
+            // expected format will be csv for now to keep it simple
+            String[] commandData = message.split(",");
+            if (commandData.length >= 2) {
+
+                // index 0 is the trigger word
+                // index 1 is the command
+
+                // part 4 added the Command enum
+                final Command command = Command.stringToCommand(commandData[1].trim());
+
+                System.out.println(TextFX.colorize("Checking command: " + command, Color.YELLOW));
+                // index N are the data from the command
+                // Note: not all commands require data, some are simply actions/triggers to
+                // process like quit
+                switch (command) {
+                    case Command.QUIT:
+                    case Command.DISCONNECT:
+                    case Command.LOGOUT:
+                    case Command.LOGOFF:
+                        currentRoom.handleDisconnect(this);
+                        wasCommand = true;
+                        break;
+                    case Command.REVERSE:
+                        // ignore the first two indexes (trigger, command)
+                        String relevantText = String.join(" ", Arrays.copyOfRange(commandData, 2, commandData.length));
+                        currentRoom.handleReverseText(this, relevantText);
+                        wasCommand = true;
+                        break;
+                    case Command.CREATE_ROOM:
+                        currentRoom.handleCreateRoom(this, commandData[2]);
+                        wasCommand = true;
+                        break;
+                    case Command.JOIN_ROOM:
+                        currentRoom.handleJoinRoom(this, commandData[2]);
+                        wasCommand = true;
+                        break;
+                    case Command.LEAVE_ROOM:
+                        // leaving simply joins the lobby since a ServerThread must always exist in a
+                        // Room
+                        currentRoom.handleJoinRoom(this, Room.LOBBY);
+                        wasCommand = true;
+                        break;
+                    // added more cases/breaks as needed for other commands
+                    default:
+                        break;
+                }
+            }
+
+        }
+        return wasCommand;
+    }
+
+    private void cleanup() {
         info("ServerThread cleanup() start");
         try {
             // close server-side end of connection
-            currentRoom = null;
-            out.close();
             client.close();
-            user.reset();
             info("Closed Server-side Socket");
         } catch (IOException e) {
             info("Client already closed");
         }
-
         info("ServerThread cleanup() end");
     }
 }
