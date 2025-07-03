@@ -66,7 +66,7 @@ public class PracticalUI extends JFrame {
         // Add button
         JButton button = new JButton("Next");
         button.setAlignmentX(JButton.CENTER_ALIGNMENT); // Center the button
-        
+
         button.addActionListener((event) -> {
             boolean isValid = true;
             try {
