@@ -129,6 +129,11 @@ public class Room implements AutoCloseable {
         if (!isRunning) { // block action if Room isn't running
             return;
         }
+        if(!sender.isReady()){
+            // TODO, include a phase check (maybe ask Client)
+            // Can't send messages as spectator (i.e, not ready and in-progress)
+            return;
+        }
 
         final long senderId = sender == null ? Constants.DEFAULT_CLIENT_ID : sender.getClientId();
         // Note: formattedMessage must be final (or effectively final) since outside
